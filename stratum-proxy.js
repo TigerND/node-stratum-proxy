@@ -20,12 +20,14 @@ var ProxyObject = function(socket, proxy) {
 		console.log('(' + Object.keys(proxies).length + ')[' + socket.localAddress + ':' + socket.localPort + '<-' + socket.remoteAddress + ':' + socket.remotePort + '] ' + message)
 	}
 	this.destroy = function() {
-		if (self.client) {
-			self.log('Closing client')
-			self.client.end()
+		var client = self.client
+		if (client) {
 			self.client = null
-		}		
+			self.log('Closing pool connection')
+			client.end()
+		}
 		delete proxies[self.id]
+		self.log('Proxy closed')
 	}
 
 	this.onServerError = function(err) {
@@ -50,6 +52,7 @@ var ProxyObject = function(socket, proxy) {
 
 	this.onPoolConnect = function() {
 		var self = this
+		self.log('Connected to the pool')
 		self.connected = true
 		if (self.buffer) {
 			self.client.write(self.buffer)
