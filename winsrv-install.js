@@ -2,9 +2,9 @@ var Service = require('node-windows').Service;
 
 // Create a new service object
 var svc = new Service({
-  name:'cgminer2http',
-  description: 'Simple CGMiner/BFGMiner API to HTTP proxy.',
-  script: require('path').join(__dirname,'cgminer2http.js'),
+  name:'node-stratum-proxy',
+  description: 'Simple stratum proxy.',
+  script: require('path').join(__dirname,'stratum-proxy.js'),
   env:{
     name: "NODE_ENV",
     value: "production"

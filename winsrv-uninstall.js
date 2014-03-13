@@ -2,8 +2,8 @@ var Service = require('node-windows').Service;
 
 // Create a new service object
 var svc = new Service({
-  name:'cgminer2http',
-  script: require('path').join(__dirname,'cgminer2http.js')
+  name:'node-stratum-proxy',
+  script: require('path').join(__dirname,'stratum-proxy.js')
 });
 
 // Listen for the "uninstall" event so we know when it's done.
