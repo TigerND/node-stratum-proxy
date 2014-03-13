@@ -1,0 +1,37 @@
+{
+    "default": {
+        "debug": true,
+    	"admin": {
+        	"port": 4032
+        },
+        "proxy": [
+        	{
+        		"listen": {
+        			"port": 3333
+        		},
+        		"connect": {
+        			"host": "eu2.ltcrabbit.com",
+        			"port": 3333
+        		}
+        	},
+        	{
+        		"listen": {
+        			"port": 3334
+        		},
+        		"connect": {
+        			"host": "us2.ltcrabbit.com",
+        			"port": 3334
+        		}
+        	}
+        ]
+    },
+    "development": {
+    },
+    "test": {
+    },
+    "staging": {
+    },
+    "production": {
+        "debug": false
+    }
+}
