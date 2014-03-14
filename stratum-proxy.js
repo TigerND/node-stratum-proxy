@@ -114,13 +114,13 @@ var ProxyObject = function(socket, proxy) {
 		self.client = client
 		self.onPoolConnect(client)
 	})
-	self.client.on('error', function(err) {
+	client.on('error', function(err) {
 		self.onPoolError(client, err)
 	})
-	self.client.on('data', function(data) {
+	client.on('data', function(data) {
 		self.onPoolData(client, data)
 	})
-	self.client.on('end', function() {
+	client.on('end', function() {
 		self.onPoolEnd(client)
 	})
 }
