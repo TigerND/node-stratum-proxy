@@ -17,7 +17,13 @@ var ProxyObject = function(socket, proxy) {
 	var self = this
 	
 	this.log = function(message) {
-		console.log('(' + Object.keys(proxies).length + ')[' + socket.localAddress + ':' + socket.localPort + '<-' + socket.remoteAddress + ':' + socket.remotePort + '] ' + message)
+		var self = this
+		var prefix = '(' + Object.keys(proxies).length + ')[' + self.id + ']['
+		if (self.client) {
+			prefix += self.client.remoteAddress + ':' + self.client.remotePort + '<-'
+		}
+		prefix += self.socket.localAddress + ':' + self.socket.localPort + '<-' + self.socket.remoteAddress + ':' + self.socket.remotePort + ']'
+		console.log(prefix + '\n' + message)
 	}
 	this.destroy = function() {
 		var client = self.client
@@ -25,6 +31,10 @@ var ProxyObject = function(socket, proxy) {
 			self.client = null
 			self.log('Closing pool connection')
 			client.end()
+		}
+		if (self.socket.address()) {
+			self.log('Closing client connection')
+			self.socket.end()
 		}
 		delete proxies[self.id]
 		self.log('Proxy closed')
@@ -37,10 +47,11 @@ var ProxyObject = function(socket, proxy) {
 	}
 	this.onServerData = function(data) {
 		var self = this
-		self.log('Q: ' + data)
 		if (self.client && self.connected) {
+			self.log('Q: ' + data)
 			self.client.write(data)
 		} else {
+			self.log('B: ' + data)
 			self.buffer += data
 		}
 	}
@@ -50,11 +61,17 @@ var ProxyObject = function(socket, proxy) {
 		self.destroy()
 	}
 
-	this.onPoolConnect = function() {
+	this.onPoolConnect = function(client) {
 		var self = this
 		self.log('Connected to the pool')
+		if (!self.client) {
+			self.log('Too late')
+			client.end()
+			return
+		}
 		self.connected = true
 		if (self.buffer) {
+			self.log('Q: ' + self.buffer)
 			self.client.write(self.buffer)
 			self.buffer = ''
 		}			
@@ -94,7 +111,7 @@ var ProxyObject = function(socket, proxy) {
 	self.log('Connecting to ' + JSON.stringify(self.proxy.connect))
 	self.connected = false
 	self.client = net.connect(self.proxy.connect, function() {
-		self.onPoolConnect()
+		self.onPoolConnect(self.client)
 	})
 	self.client.on('error', function(err) {
 		self.onPoolError(err)
