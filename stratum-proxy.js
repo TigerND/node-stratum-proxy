@@ -137,7 +137,7 @@ config.app.proxy.forEach(function(proxy) {
 		var po = new ProxyObject(socket, proxy)
 	})
 	server.listen(proxy.listen.port, function() {
-		console.log('Proxy server started at port ' + proxy.listen.port)
+		console.log('Proxy server started at port ' + proxy.listen.port + ' for ' + proxy.connect.host + ':' + proxy.connect.port)
 	})
 })
 

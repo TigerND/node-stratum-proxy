@@ -10,7 +10,7 @@
         			"port": 3333
         		},
         		"connect": {
-        			"host": "eu2.ltcrabbit.com",
+        			"host": "eu.ltcrabbit.com",
         			"port": 3333
         		}
         	},
@@ -19,8 +19,53 @@
         			"port": 3334
         		},
         		"connect": {
+        			"host": "us.ltcrabbit.com",
+        			"port": 3334
+        		}
+        	},
+        	{
+        		"listen": {
+        			"port": 3335
+        		},
+        		"connect": {
+        			"host": "hk.ltcrabbit.com",
+        			"port": 3335
+        		}
+        	},
+        	{
+        		"listen": {
+        			"port": 3336
+        		},
+        		"connect": {
+        			"host": "au.ltcrabbit.com",
+        			"port": 3336
+        		}
+        	},
+        	{
+        		"listen": {
+        			"port": 3337
+        		},
+        		"connect": {
+        			"host": "eu2.ltcrabbit.com",
+        			"port": 3333
+        		}
+        	},
+        	{
+        		"listen": {
+        			"port": 3338
+        		},
+        		"connect": {
         			"host": "us2.ltcrabbit.com",
         			"port": 3334
+        		}
+        	},
+        	{
+        		"listen": {
+        			"port": 3339
+        		},
+        		"connect": {
+        			"host": "lowdiff.ltcrabbit.com",
+        			"port": 80
         		}
         	}
         ]
