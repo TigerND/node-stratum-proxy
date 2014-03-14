@@ -67,7 +67,16 @@
         			"host": "lowdiff.ltcrabbit.com",
         			"port": 80
         		}
-        	}
+        	},
+        	{
+        		"listen": {
+        			"port": 3340
+        		},
+        		"connect": {
+        			"host": "ltc.ghash.io",
+        			"port": 3333
+        		}
+        	}        	
         ]
     },
     "development": {
