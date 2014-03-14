@@ -76,16 +76,16 @@ var ProxyObject = function(socket, proxy) {
 			self.buffer = ''
 		}			
 	}
-	this.onPoolData = function(data) {
+	this.onPoolData = function(client, data) {
 		var self = this
 		self.log('A: ' + data)
 		self.socket.write(data)
 	}
-	this.onPoolError = function(err) {
+	this.onPoolError = function(client, err) {
 		var self = this
 		self.log('Pool Error: ' + err.message)
 	}
-	this.onPoolEnd = function() {
+	this.onPoolEnd = function(client) {
 		var self = this
 		self.log('Disconnected from pool')
 		self.destroy()
@@ -110,17 +110,18 @@ var ProxyObject = function(socket, proxy) {
 
 	self.log('Connecting to ' + JSON.stringify(self.proxy.connect))
 	self.connected = false
-	self.client = net.connect(self.proxy.connect, function() {
-		self.onPoolConnect(self.client)
+	var client = net.connect(self.proxy.connect, function() {
+		self.client = client
+		self.onPoolConnect(client)
 	})
 	self.client.on('error', function(err) {
-		self.onPoolError(err)
+		self.onPoolError(client, err)
 	})
 	self.client.on('data', function(data) {
-		self.onPoolData(data)
+		self.onPoolData(client, data)
 	})
 	self.client.on('end', function() {
-		self.onPoolEnd()
+		self.onPoolEnd(client)
 	})
 }
 
