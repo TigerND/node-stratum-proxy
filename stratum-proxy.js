@@ -30,26 +30,28 @@ var ProxyObject = function(socket, proxy) {
 		console.log(prefix + '\n' + message)
 	}
 	this.destroy = function() {
-		if (self.id) {
-			var client = self.client		
-			if ((client) && (client.remoteAddress)) {
-				self.log('Closing pool connection')
-				client.end()
-			}
-			if ((self.socket) && (self.socket.remoteAddress)) {
-				self.log('Closing client connection')
-				self.socket.end()
-			}
-			if ((!self.client) && (!self.socket)) {
-				delete proxies[self.id]
-				self.log('Proxy closed, ' + Object.keys(proxies).length + ' active proxies')			
-			}
+		var self = this
+		var client = self.client		
+		if ((client) && (client.remoteAddress)) {
+			self.log('Closing pool connection')
+			client.end()
+		}
+		if ((self.socket) && (self.socket.remoteAddress)) {
+			self.log('Closing client connection')
+			self.socket.end()
+		}
+		if ((!self.client) && (!self.socket)) {
+			delete proxies[self.id]
+			self.log('Proxy closed, ' + Object.keys(proxies).length + ' active proxies')			
 		}
 	}
 
 	this.onServerError = function(err) {
 		var self = this
 		self.log('Client Error: ' + err.message)
+		if (!self.socket.remoteAddress) {
+			self.socket = null
+		}
 		self.destroy()
 	}
 	this.onServerData = function(data) {
@@ -95,6 +97,10 @@ var ProxyObject = function(socket, proxy) {
 	this.onPoolError = function(client, err) {
 		var self = this
 		self.log('Pool Error: ' + err.message)
+		if (!self.client.remoteAddress) {
+			self.client = null
+		}
+		self.destroy()
 	}
 	this.onPoolEnd = function(client) {
 		var self = this
