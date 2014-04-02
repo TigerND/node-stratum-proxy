@@ -22,22 +22,28 @@ var ProxyObject = function(socket, proxy) {
 		if (self.client) {
 			prefix += self.client.remoteAddress + ':' + self.client.remotePort + '<-'
 		}
-		prefix += self.socket.localAddress + ':' + self.socket.localPort + '<-' + self.socket.remoteAddress + ':' + self.socket.remotePort + ']'
+		if (self.socket) {
+			prefix += self.socket.localAddress + ':' + self.socket.localPort + '<-' + self.socket.remoteAddress + ':' + self.socket.remotePort + ']'
+		} else {
+			prefix += 'null]'
+		}
 		console.log(prefix + '\n' + message)
 	}
 	this.destroy = function() {
-		var client = self.client
-		if (client) {
-			self.client = null
-			self.log('Closing pool connection')
-			client.end()
+		if (self.id) {
+			var client = self.client		
+			if ((client) && (client.remoteAddress)) {
+				self.log('Closing pool connection')
+				client.end()
+			}
+			if ((self.socket) && (self.socket.remoteAddress)) {
+				self.log('Closing client connection')
+				self.socket.end()
+			}
+			self.log('Proxy closed')			
+			delete proxies[self.id]
+			self.id = null
 		}
-		if (self.socket.address()) {
-			self.log('Closing client connection')
-			self.socket.end()
-		}
-		delete proxies[self.id]
-		self.log('Proxy closed')
 	}
 
 	this.onServerError = function(err) {
@@ -47,7 +53,7 @@ var ProxyObject = function(socket, proxy) {
 	}
 	this.onServerData = function(data) {
 		var self = this
-		if (self.client && self.connected) {
+		if ((self.client) && (self.client.remoteAddress)) {
 			self.log('Q: ' + data)
 			self.client.write(data)
 		} else {
@@ -58,6 +64,7 @@ var ProxyObject = function(socket, proxy) {
 	this.onServerEnd = function(data) {
 		var self = this
 		self.log('Client disconnected')
+		self.socket = null
 		self.destroy()
 	}
 
@@ -69,7 +76,6 @@ var ProxyObject = function(socket, proxy) {
 			client.end()
 			return
 		}
-		self.connected = true
 		if (self.buffer) {
 			self.log('Q: ' + self.buffer)
 			self.client.write(self.buffer)
@@ -78,8 +84,12 @@ var ProxyObject = function(socket, proxy) {
 	}
 	this.onPoolData = function(client, data) {
 		var self = this
-		self.log('A: ' + data)
-		self.socket.write(data)
+		if (self.socket && self.socket.remoteAddress) {
+			self.log('A: ' + data)
+			self.socket.write(data)			
+		} else {
+			self.log('I: ' + data)
+		}
 	}
 	this.onPoolError = function(client, err) {
 		var self = this
@@ -88,6 +98,7 @@ var ProxyObject = function(socket, proxy) {
 	this.onPoolEnd = function(client) {
 		var self = this
 		self.log('Disconnected from pool')
+		self.client = null
 		self.destroy()
 	}
 
@@ -108,8 +119,7 @@ var ProxyObject = function(socket, proxy) {
 		self.onServerEnd()
 	})
 
-	self.log('Connecting to ' + JSON.stringify(self.proxy.connect))
-	self.connected = false
+	self.log('Connecting to ' + JSON.stringify(self.proxy.connect))	
 	var client = net.connect(self.proxy.connect, function() {
 		self.client = client
 		self.onPoolConnect(client)
