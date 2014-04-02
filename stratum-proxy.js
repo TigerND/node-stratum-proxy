@@ -40,9 +40,10 @@ var ProxyObject = function(socket, proxy) {
 				self.log('Closing client connection')
 				self.socket.end()
 			}
-			self.log('Proxy closed')			
-			delete proxies[self.id]
-			self.id = null
+			if ((!self.client) && (!self.socket)) {
+				delete proxies[self.id]
+				self.log('Proxy closed, ' + Object.keys(proxies).length + ' active proxies')			
+			}
 		}
 	}
 
