@@ -18,14 +18,16 @@ var ProxyObject = function(socket, proxy) {
 	
 	this.log = function(message) {
 		var self = this
-		var prefix = '(' + Object.keys(proxies).length + ')[' + self.id + ']['
+		var prefix = '(' + Object.keys(proxies).length + ')[' + self.id + ']'
 		if (self.client) {
-			prefix += self.client.remoteAddress + ':' + self.client.remotePort + '<-'
+			prefix += '[' + self.client.remoteAddress + ':' + self.client.remotePort + '<-' + self.client.localAddress + ':' + self.client.localPort + ']'
+		} else {
+			prefix += '[null]'
 		}
 		if (self.socket) {
-			prefix += self.socket.localAddress + ':' + self.socket.localPort + '<-' + self.socket.remoteAddress + ':' + self.socket.remotePort + ']'
+			prefix += '[' + self.socket.localAddress + ':' + self.socket.localPort + '<-' + self.socket.remoteAddress + ':' + self.socket.remotePort + ']'
 		} else {
-			prefix += 'null]'
+			prefix += '[null]'
 		}
 		console.log(prefix + '\n' + message)
 	}
@@ -33,25 +35,32 @@ var ProxyObject = function(socket, proxy) {
 		var self = this
 		var client = self.client		
 		if ((client) && (client.remoteAddress)) {
-			self.log('Closing pool connection')
+			self.log('[POOL] Closing connection')
 			client.end()
+		} else {
+			self.client = null
 		}
 		if ((self.socket) && (self.socket.remoteAddress)) {
-			self.log('Closing client connection')
+			self.log('[MINER] Closing connection')
 			self.socket.end()
+		} else {
+			self.socket = null
 		}
 		if ((!self.client) && (!self.socket)) {
 			delete proxies[self.id]
-			self.log('Proxy closed, ' + Object.keys(proxies).length + ' active proxies')			
+			self.log('[PROXY] Closed, ' + Object.keys(proxies).length + ' active proxies')			
 		}
 	}
 
 	this.onServerError = function(err) {
 		var self = this
-		self.log('Client Error: ' + err.message)
-		if (!self.socket.remoteAddress) {
-			self.socket = null
-		}
+		self.log('[MINER] Error: ' + err.message)
+		self.destroy()
+	}
+	this.onServerEnd = function(data) {
+		var self = this
+		self.log('[MINER] Disconnected')
+		self.socket = null
 		self.destroy()
 	}
 	this.onServerData = function(data) {
@@ -64,18 +73,12 @@ var ProxyObject = function(socket, proxy) {
 			self.buffer += data
 		}
 	}
-	this.onServerEnd = function(data) {
-		var self = this
-		self.log('Client disconnected')
-		self.socket = null
-		self.destroy()
-	}
 
 	this.onPoolConnect = function(client) {
 		var self = this
-		self.log('Connected to the pool')
+		self.log('[POOL] Connected')
 		if (!self.client) {
-			self.log('Too late')
+			self.log('[POOL] Too late')
 			client.end()
 			return
 		}
@@ -85,6 +88,17 @@ var ProxyObject = function(socket, proxy) {
 			self.buffer = ''
 		}			
 	}
+	this.onPoolError = function(client, err) {
+		var self = this
+		self.log('[POOL] Error: ' + err.message)
+		self.destroy()
+	}
+	this.onPoolEnd = function(client) {
+		var self = this
+		self.log('[POOL] Disconnected')
+		self.client = null
+		self.destroy()
+	}
 	this.onPoolData = function(client, data) {
 		var self = this
 		if (self.socket && self.socket.remoteAddress) {
@@ -93,20 +107,6 @@ var ProxyObject = function(socket, proxy) {
 		} else {
 			self.log('I: ' + data)
 		}
-	}
-	this.onPoolError = function(client, err) {
-		var self = this
-		self.log('Pool Error: ' + err.message)
-		if (!self.client.remoteAddress) {
-			self.client = null
-		}
-		self.destroy()
-	}
-	this.onPoolEnd = function(client) {
-		var self = this
-		self.log('Disconnected from pool')
-		self.client = null
-		self.destroy()
 	}
 
 	self.id = uuid.v4()
@@ -119,14 +119,14 @@ var ProxyObject = function(socket, proxy) {
 	self.socket.on('error', function(err) {
 		self.onServerError(err)
 	})
-	self.socket.on('data', function(data){
-		self.onServerData(data)
-	})
 	self.socket.on('end', function() {
 		self.onServerEnd()
 	})
+	self.socket.on('data', function(data){
+		self.onServerData(data)
+	})
 
-	self.log('Connecting to ' + JSON.stringify(self.proxy.connect))	
+	self.log('[POOL] Connecting to ' + JSON.stringify(self.proxy.connect))	
 	var client = net.connect(self.proxy.connect, function() {
 		self.client = client
 		self.onPoolConnect(client)
@@ -134,17 +134,24 @@ var ProxyObject = function(socket, proxy) {
 	client.on('error', function(err) {
 		self.onPoolError(client, err)
 	})
-	client.on('data', function(data) {
-		self.onPoolData(client, data)
-	})
 	client.on('end', function() {
 		self.onPoolEnd(client)
+	})
+	client.on('data', function(data) {
+		self.onPoolData(client, data)
 	})
 }
 
 app.get('/', function(request, response) {
+	for (var k in proxies) {
+		if (proxies.hasOwnProperty(k)) {
+			var proxy = proxies[k]
+			proxy.log()
+		}			
+    }
 	response.render(path.join(__dirname, 'templates/index.jade'), {
-		"connections": Object.keys(proxies).length
+		"connections": Object.keys(proxies).length,
+		"proxies": proxies
 	})
 })
 
