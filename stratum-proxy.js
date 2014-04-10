@@ -155,6 +155,40 @@ app.get('/', function(request, response) {
 	})
 })
 
+function makeSocketInfo(socket) {
+	var result = null
+	if (socket) {
+		result = {
+				local: {
+					host: socket.localAddress,
+					port: socket.localPort
+				},
+				remote: {
+					host: socket.remoteAddress,
+					port: socket.remotePort
+				}
+			}		
+	}
+	return result
+}
+
+app.get('/proxies', function(request, response) {
+	var result = []
+	for (var k in proxies) {
+		if (proxies.hasOwnProperty(k)) {
+			var proxy = proxies[k]
+			item = {
+				id: proxy.id,
+				type: "simple",
+				miner: makeSocketInfo(proxy.socket),
+				pool: makeSocketInfo(proxy.client)
+			}
+			result.push(item)
+		}			
+    }
+	response.json(result)
+})
+
 var servers = new Array()
 config.app.proxy.forEach(function(proxy) {
 	var server = net.createServer(function(socket) {
