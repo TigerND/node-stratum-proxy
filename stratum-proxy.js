@@ -9,7 +9,7 @@ var express = require('express'),
 	url = require('url'),
 	uuid = require('uuid')
 
-var app = express();
+var app = express()
 
 var proxies = {}
 
@@ -201,4 +201,3 @@ config.app.proxy.forEach(function(proxy) {
 
 app.listen(config.app.admin.port);
 console.log('Admin server has started at port ' + config.app.admin.port);
-

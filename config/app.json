@@ -82,6 +82,15 @@
         			"port": 4444
         		},
         		"connect": {
+        			"host": "drkpool.com",
+        			"port": 3333
+        		}
+        	},
+        	{
+        		"listen": {
+        			"port": 4445
+        		},
+        		"connect": {
         			"host": "x11.ltcrabbit.com",
         			"port": 4444
         		}

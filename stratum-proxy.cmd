@@ -1,1 +1,1 @@
-node stratum-proxy.js
+nodejs stratum-proxy.js
