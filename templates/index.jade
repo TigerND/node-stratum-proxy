@@ -1,2 +1,13 @@
 doctype html
-div Active connections: #{connections}
+html
+	head
+		script(src="/static/js/socket.io.min.js")
+		script(src="/static/js//jquery-1.11.1.min.js")
+		script(src="/static/js/app.js")
+	body
+		#proxies-count-wrapper Active proxies:&nbsp
+			span(id="proxies-count") n/a
+		script.
+			$(document).ready(function() {
+				app.start("#{origin}")
+			})

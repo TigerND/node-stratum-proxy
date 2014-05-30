@@ -3,13 +3,34 @@ var path = require('path')
 
 var config = require('konfig')({ path: path.join(__dirname, 'config') })
 
-var express = require('express'),
+var express = require('express'),	
+	http = require('http'),	
 	jade = require('jade'),
 	net = require('net'),
 	url = require('url'),
-	uuid = require('uuid')
+	uuid = require('uuid'),
+	io = require('socket.io')
+	
+var logger = require('morgan')
+var favicon = require('static-favicon')
+var bodyParser = require('body-parser')
+var cookieParser = require('cookie-parser')
 
 var app = express()
+var server = app.listen(config.app.admin.port)
+var io = io.listen(server)
+console.log('Admin server has started at port ' + config.app.admin.port)
+
+app.use(logger('dev'))
+app.use(favicon())
+
+app.set('views', path.join(__dirname, 'views'))
+app.set('view engine', 'jade')
+app.use('/static', express.static(__dirname + '/static'))
+
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded())
+app.use(cookieParser());
 
 var proxies = {}
 
@@ -150,8 +171,7 @@ app.get('/', function(request, response) {
 		}			
     }
 	response.render(path.join(__dirname, 'templates/index.jade'), {
-		"connections": Object.keys(proxies).length,
-		"proxies": proxies
+		"origin": request.protocol + '://' + request.host
 	})
 })
 
@@ -172,7 +192,7 @@ function makeSocketInfo(socket) {
 	return result
 }
 
-app.get('/proxies', function(request, response) {
+function mageProxesInfo() {
 	var result = []
 	for (var k in proxies) {
 		if (proxies.hasOwnProperty(k)) {
@@ -186,8 +206,28 @@ app.get('/proxies', function(request, response) {
 			result.push(item)
 		}			
     }
-	response.json(result)
+	return result
+}
+
+app.get('/proxies', function(request, response) {
+	response.json(mageProxesInfo())
 })
+
+io.of('/api').on('connection', function(from) {
+	var socket = from	
+	console.log('[API] Connected')
+	
+	socket.on('disconnect', function() {
+		console.log('[API] Disconnected')
+	})
+	
+	socket.on('proxies', function(name, fn) {
+		if (name == 'list') {
+			console.log('[API] proxies.list')
+			socket.emit('proxies', 'update', mageProxesInfo())
+		}
+	}) 
+}) 
 
 var servers = new Array()
 config.app.proxy.forEach(function(proxy) {
@@ -199,5 +239,6 @@ config.app.proxy.forEach(function(proxy) {
 	})
 })
 
-app.listen(config.app.admin.port);
-console.log('Admin server has started at port ' + config.app.admin.port);
+setInterval(function() {
+	// Not implemented yet
+}, 1000)
