@@ -7,10 +7,9 @@ Simple stratum proxy
 To run this proxy you need to:
 * Install node.js from http://nodejs.org/
 * Run the following commands:
-
 ```sh
-> npm install
-> node stratum-proxy
+  > npm install
+  > node stratum-proxy
 ```
 
 ## License
