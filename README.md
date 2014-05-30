@@ -1,24 +1,19 @@
-cgminer2http
-============
+## Node Stratum Proxy
 
-Simple CGMiner/BFGMiner API to HTTP Proxy
+Simple stratum proxy
 
-
-Install & Run
-=============
+## Install & Run
 
 To run this proxy you need to:
 * Install node.js from http://nodejs.org/
 * Run the following commands:
 
-  >   npm -g install
-  
-  >   node cgminer2http
+```sh
+> npm install
+> node stratum-proxy
+```
 
-
-
-The MIT License (MIT)
-=====================
+## License
 
 Copyright (c) 2014 Alexander Zykov
 
