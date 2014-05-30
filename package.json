@@ -4,10 +4,11 @@
   "version": "0.1.3",
   "private": true,
   "dependencies": {
+    "util": "*",
     "konfig": "*",
     "express": "4.x",
     "morgan": "*",
-    "static-favicon": "*",
+    "serve-favicon": "*",
     "cookie-parser": "*",
     "body-parser": "1.2.x",
     "jade": "1.3.x",

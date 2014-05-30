@@ -1,9 +1,22 @@
 
+/* -*- coding: utf-8 -*-
+============================================================================= */
+
 var path = require('path')
 
 var config = require('konfig')({ path: path.join(__dirname, 'config') })
 
-var express = require('express'),	
+var morgan = require('morgan')
+
+var log = null 
+if (config.app.debug) {
+	log = morgan('dev')
+} else {
+	log = morgan()
+}
+
+var util = require("util"),
+	express = require('express'),	
 	http = require('http'),	
 	jade = require('jade'),
 	net = require('net'),
@@ -11,18 +24,19 @@ var express = require('express'),
 	uuid = require('uuid'),
 	io = require('socket.io')
 	
-var logger = require('morgan')
-var favicon = require('static-favicon')
+var favicon = require('serve-favicon')
 var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser')
 
 var app = express()
+app.use(log)
+
 var server = app.listen(config.app.admin.port)
+
 var io = io.listen(server)
 console.log('Admin server has started at port ' + config.app.admin.port)
 
-app.use(logger('dev'))
-app.use(favicon())
+app.use(favicon(__dirname + '/static/favicon.ico'))
 
 app.set('views', path.join(__dirname, 'views'))
 app.set('view engine', 'jade')
@@ -31,6 +45,9 @@ app.use('/static', express.static(__dirname + '/static'))
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded())
 app.use(cookieParser());
+
+/* Proxy
+============================================================================= */
 
 var proxies = {}
 
@@ -163,6 +180,9 @@ var ProxyObject = function(socket, proxy) {
 	})
 }
 
+/* Admin interface
+============================================================================= */
+
 app.get('/', function(request, response) {
 	for (var k in proxies) {
 		if (proxies.hasOwnProperty(k)) {
@@ -174,6 +194,9 @@ app.get('/', function(request, response) {
 		"origin": request.protocol + '://' + request.host
 	})
 })
+
+/* Common API functions
+============================================================================= */
 
 function makeSocketInfo(socket) {
 	var result = null
@@ -209,9 +232,15 @@ function mageProxesInfo() {
 	return result
 }
 
+/* Http API
+============================================================================= */
+
 app.get('/proxies', function(request, response) {
 	response.json(mageProxesInfo())
 })
+
+/* WebSocket API
+============================================================================= */
 
 io.of('/api').on('connection', function(from) {
 	var socket = from	
@@ -229,6 +258,13 @@ io.of('/api').on('connection', function(from) {
 	}) 
 }) 
 
+setInterval(function() {
+	// Not implemented yet
+}, 1000)
+
+/* Starting proxies
+============================================================================= */
+
 var servers = new Array()
 config.app.proxy.forEach(function(proxy) {
 	var server = net.createServer(function(socket) {
@@ -238,7 +274,3 @@ config.app.proxy.forEach(function(proxy) {
 		console.log('Proxy server started at port ' + proxy.listen.port + ' for ' + proxy.connect.host + ':' + proxy.connect.port)
 	})
 })
-
-setInterval(function() {
-	// Not implemented yet
-}, 1000)
