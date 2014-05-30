@@ -18,7 +18,6 @@ if (config.app.debug) {
 var util = require("util"),
 	express = require('express'),	
 	http = require('http'),	
-	jade = require('jade'),
 	net = require('net'),
 	url = require('url'),
 	uuid = require('uuid'),
@@ -38,9 +37,8 @@ console.log('Admin server has started at port ' + config.app.admin.port)
 
 app.use(favicon(__dirname + '/static/favicon.ico'))
 
-app.set('views', path.join(__dirname, 'views'))
-app.set('view engine', 'jade')
-app.use('/static', express.static(__dirname + '/static'))
+//app.set('views', path.join(__dirname, 'views'))
+//app.set('view engine', 'jade')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded())
@@ -180,21 +178,6 @@ var ProxyObject = function(socket, proxy) {
 	})
 }
 
-/* Admin interface
-============================================================================= */
-
-app.get('/', function(request, response) {
-	for (var k in proxies) {
-		if (proxies.hasOwnProperty(k)) {
-			var proxy = proxies[k]
-			proxy.log()
-		}			
-    }
-	response.render(path.join(__dirname, 'templates/index.jade'), {
-		"origin": request.protocol + '://' + request.host
-	})
-})
-
 /* Common API functions
 ============================================================================= */
 
@@ -232,13 +215,6 @@ function mageProxesInfo() {
 	return result
 }
 
-/* Http API
-============================================================================= */
-
-app.get('/proxies', function(request, response) {
-	response.json(mageProxesInfo())
-})
-
 /* WebSocket API
 ============================================================================= */
 
@@ -261,6 +237,19 @@ io.of('/api').on('connection', function(from) {
 setInterval(function() {
 	// Not implemented yet
 }, 1000)
+
+/* Http API
+============================================================================= */
+
+app.get('/proxies', function(request, response) {
+	response.json(mageProxesInfo())
+})
+
+/* Admin interface
+============================================================================= */
+
+app.use('/static', express.static(__dirname + '/static'))
+app.use(express.static(__dirname + '/public'))
 
 /* Starting proxies
 ============================================================================= */

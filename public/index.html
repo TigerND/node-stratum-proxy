@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+  <head>
+	<meta content="text/html; charset=utf-8" http-equiv="Content-Type">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	
+    <script src="/static/js/socket.io.min.js"></script>
+    <script src="/static/js/jquery-1.11.1.min.js"></script>
+    <script src="/static/js/app.js"></script>
+  </head>
+  <body>
+    <div id="proxies-count-wrapper">Active proxies:&nbsp<span id="proxies-count">n/a</span></div>
+    <script>
+      $(document).ready(function() {
+          app.start(window.location.origin)
+      })
+    </script>
+  </body>
+</html>

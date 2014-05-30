@@ -5,15 +5,13 @@
   "private": true,
   "dependencies": {
     "util": "*",
+    "uuid": "*",
     "konfig": "*",
     "express": "4.x",
     "morgan": "*",
     "serve-favicon": "*",
     "cookie-parser": "*",
     "body-parser": "1.2.x",
-    "jade": "1.3.x",
-    "node-windows": "0.1.x",
-    "uuid": "*",
     "socket.io": "0.9.x"
   },
   "scripts": {

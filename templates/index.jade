@@ -9,5 +9,5 @@ html
 			span(id="proxies-count") n/a
 		script.
 			$(document).ready(function() {
-				app.start("#{origin}")
+				app.start(window.location.origin)
 			})
