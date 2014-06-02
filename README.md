@@ -1,5 +1,5 @@
+[![travis](https://img.shields.io/travis/TigerND/node-stratum-proxy.svg)](https://travis-ci.org/TigerND/node-stratum-proxy)
 ## Node Stratum Proxy
-
 Simple stratum proxy
 
 ## Install & Run
