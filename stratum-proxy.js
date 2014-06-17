@@ -1,6 +1,6 @@
-
 /* -*- coding: utf-8 -*-
 ============================================================================= */
+/*jshint asi: true*/
 
 var path = require('path')
 
@@ -8,7 +8,7 @@ var config = require('konfig')({ path: path.join(__dirname, 'config') })
 
 var morgan = require('morgan')
 
-var log = null 
+var log = null
 if (config.app.debug) {
 	log = morgan('dev')
 } else {
@@ -16,13 +16,16 @@ if (config.app.debug) {
 }
 
 var util = require("util"),
-	express = require('express'),	
-	http = require('http'),	
+	express = require('express'),
+	http = require('http'),
 	net = require('net'),
 	url = require('url'),
 	uuid = require('uuid'),
 	io = require('socket.io')
-	
+
+/* Express
+============================================================================= */
+
 var favicon = require('serve-favicon')
 var bodyParser = require('body-parser')
 var cookieParser = require('cookie-parser')
@@ -32,17 +35,17 @@ app.use(log)
 
 var server = app.listen(config.app.admin.port)
 
-var io = io.listen(server)
-console.log('Admin server has started at port ' + config.app.admin.port)
-
 app.use(favicon(__dirname + '/static/favicon.ico'))
-
-//app.set('views', path.join(__dirname, 'views'))
-//app.set('view engine', 'jade')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded())
 app.use(cookieParser());
+
+/* Socket I/O
+============================================================================= */
+
+var io = io.listen(server)
+console.log('Admin server has started at port ' + config.app.admin.port)
 
 /* Proxy
 ============================================================================= */
@@ -51,7 +54,7 @@ var proxies = {}
 
 var ProxyObject = function(socket, proxy) {
 	var self = this
-	
+
 	this.log = function(message) {
 		var self = this
 		var prefix = '(' + Object.keys(proxies).length + ')[' + self.id + ']'
@@ -69,23 +72,28 @@ var ProxyObject = function(socket, proxy) {
 	}
 	this.destroy = function() {
 		var self = this
-		var client = self.client		
-		if ((client) && (client.remoteAddress)) {
-			self.log('[POOL] Closing connection')
-			client.end()
-		} else {
-			self.client = null
+		var client = self.client
+		var events = {
+			names: ['error', 'end', 'data'],
+			close: function(socket) {
+				this.names.forEach(function(evt) {
+					socket.on(evt, function() {})
+				})
+				socket.end()
+			}
 		}
+		if ((self.client) && (self.client.remoteAddress)) {
+			self.log('[POOL] Closing connection')
+			events.close(self.client)
+		}
+		self.client = null
 		if ((self.socket) && (self.socket.remoteAddress)) {
 			self.log('[MINER] Closing connection')
-			self.socket.end()
-		} else {
-			self.socket = null
+			events.close(self.socket)
 		}
-		if ((!self.client) && (!self.socket)) {
-			delete proxies[self.id]
-			self.log('[PROXY] Closed, ' + Object.keys(proxies).length + ' active proxies')			
-		}
+		self.socket = null
+		delete proxies[self.id]
+		self.log('[PROXY] Closed, ' + Object.keys(proxies).length + ' active proxies')
 	}
 
 	this.onServerError = function(err) {
@@ -122,7 +130,7 @@ var ProxyObject = function(socket, proxy) {
 			self.log('Q: ' + self.buffer)
 			self.client.write(self.buffer)
 			self.buffer = ''
-		}			
+		}
 	}
 	this.onPoolError = function(client, err) {
 		var self = this
@@ -139,7 +147,7 @@ var ProxyObject = function(socket, proxy) {
 		var self = this
 		if (self.socket && self.socket.remoteAddress) {
 			self.log('A: ' + data)
-			self.socket.write(data)			
+			self.socket.write(data)
 		} else {
 			self.log('I: ' + data)
 		}
@@ -162,7 +170,7 @@ var ProxyObject = function(socket, proxy) {
 		self.onServerData(data)
 	})
 
-	self.log('[POOL] Connecting to ' + JSON.stringify(self.proxy.connect))	
+	self.log('[POOL] Connecting to ' + JSON.stringify(self.proxy.connect))
 	var client = net.connect(self.proxy.connect, function() {
 		self.client = client
 		self.onPoolConnect(client)
@@ -193,7 +201,7 @@ function makeSocketInfo(socket) {
 					host: socket.remoteAddress,
 					port: socket.remotePort
 				}
-			}		
+			}
 	}
 	return result
 }
@@ -210,7 +218,7 @@ function mageProxesInfo() {
 				pool: makeSocketInfo(proxy.client)
 			}
 			result.push(item)
-		}			
+		}
     }
 	return result
 }
@@ -219,20 +227,20 @@ function mageProxesInfo() {
 ============================================================================= */
 
 io.of('/api').on('connection', function(from) {
-	var socket = from	
+	var socket = from
 	console.log('[API] Connected')
-	
+
 	socket.on('disconnect', function() {
 		console.log('[API] Disconnected')
 	})
-	
+
 	socket.on('proxies', function(name, fn) {
 		if (name == 'list') {
 			console.log('[API] proxies.list')
 			socket.emit('proxies', 'update', mageProxesInfo())
 		}
-	}) 
-}) 
+	})
+})
 
 setInterval(function() {
 	// Not implemented yet
