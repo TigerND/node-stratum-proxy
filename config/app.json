@@ -2,7 +2,8 @@
     "default": {
         "debug": true,
     	"admin": {
-        	"port": 4032
+        	"port": 4032,
+        	"cors": "*"
         },
         "proxy": [
         	{

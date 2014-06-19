@@ -41,6 +41,15 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded())
 app.use(cookieParser());
 
+if (config.app.admin.cors) {
+  app.use(function(req, res, next) {
+    res.header('Access-Control-Allow-Origin', config.app.admin.cors);
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+  })
+}
+
 /* Socket I/O
 ============================================================================= */
 
