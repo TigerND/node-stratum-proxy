@@ -1,12 +1,13 @@
 {
   "name": "node-stratum-proxy",
   "description": "Simple Stratum Proxy",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "private": true,
   "main": "stratum-proxy.js",
   "dependencies": {
     "util": "*",
     "uuid": "*",
+    "async": "*",
     "konfig": "*",
     "express": "4.x",
     "morgan": "*",

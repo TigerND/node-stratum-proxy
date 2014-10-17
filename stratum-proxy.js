@@ -14,16 +14,17 @@ var log = null
 if (config.app.debug) {
     log = morgan('dev')
 } else {
-    log = morgan()
+    log = morgan('combined')
 }
 
 var util = require("util"),
+    async = require("async"),
     express = require('express'),
     http = require('http'),
     net = require('net'),
     url = require('url'),
     uuid = require('uuid'),
-    io = require('socket.io')
+    sio = require('socket.io')
 
 /* Express
 ============================================================================= */
@@ -55,7 +56,7 @@ if (config.app.admin.cors) {
 /* Socket I/O
 ============================================================================= */
 
-var io = io.listen(server)
+var io = sio.listen(server)
 console.log('Admin server has started at port ' + config.app.admin.port)
 
 /* Proxy
@@ -217,12 +218,12 @@ function makeSocketInfo(socket) {
     return result
 }
 
-function mageProxesInfo() {
+function makeProxesInfo() {
     var result = []
     for (var k in proxies) {
         if (proxies.hasOwnProperty(k)) {
             var proxy = proxies[k]
-            item = {
+            var item = {
                 id: proxy.id,
                 type: "simple",
                 miner: makeSocketInfo(proxy.socket),
@@ -248,7 +249,7 @@ io.of('/api').on('connection', function(from) {
     socket.on('proxies', function(name, fn) {
         if (name == 'list') {
             console.log('[API] proxies.list')
-            socket.emit('proxies', 'update', mageProxesInfo())
+            socket.emit('proxies', 'update', makeProxesInfo())
         }
     })
 })
@@ -261,7 +262,7 @@ setInterval(function() {
 ============================================================================= */
 
 app.get('/proxies', function(request, response) {
-    response.json(mageProxesInfo())
+    response.json(makeProxesInfo())
 })
 
 /* Admin interface
@@ -273,12 +274,21 @@ app.use(express.static(__dirname + '/public'))
 /* Starting proxies
 ============================================================================= */
 
-var servers = new Array()
-config.app.proxy.forEach(function(proxy) {
+async.eachSeries(config.app.proxy, function(proxy, callback) {
     var server = net.createServer(function(socket) {
         var po = new ProxyObject(socket, proxy)
+        server.on('error', function (err) {
+            callback(err)
+        })
     })
     server.listen(proxy.listen.port, function() {
         console.log('Proxy server started at port ' + proxy.listen.port + ' for ' + proxy.connect.host + ':' + proxy.connect.port)
+        callback()
     })
+}, function(err){
+    if (err) {
+        console.log('Failed to start a proxy:', err);
+    } else {
+        console.log('All proxies have been processed successfully');
+    }
 })
