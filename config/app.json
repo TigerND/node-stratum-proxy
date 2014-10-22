@@ -1,136 +1,120 @@
 {
     "default": {
         "debug": true,
-    	"admin": {
-        	"port": 4032,
-        	"cors": "*"
+        "admin": {
+            "port": 4032,
+            "cors": "*"
         },
-        "proxy": [
-        	{
-        		"comment": "128-8192 variable difficulty, recommended for hashrate < 15 MH",
-        		"listen": {
-        			"port": 3333
-        		},
-        		"connect": {
-        			"host": "scrypt.ltcrabbit.com",
-        			"port": 3333
-        		}
-        	},
-        	{
-        		"comment": "1028 fixed difficulty, ASICs, > 15 MH",
-        		"listen": {
-        			"port": 3335
-        		},
-        		"connect": {
-        			"host": "scrypt.ltcrabbit.com,
-        			"port": 3335
-        		}
-        	},
-        	{
-        		"comment": "2048 fixed difficulty, ASICs, > 30 MH",
-        		"listen": {
-        			"port": 3336
-        		},
-        		"connect": {
-        			"host": "scrypt.ltcrabbit.com",
-        			"port": 3336
-        		}
-        	},
-        	{
-        		"comment": "4096 fixed difficulty, ASICs, > 50 MH",
-        		"listen": {
-        			"port": 3337
-        		},
-        		"connect": {
-        			"host": "scrypt.ltcrabbit.com",
-        			"port": 3337
-        		}
-        	},
-        	{
-        		"comment": "8192 fixed difficulty, ASICs, > 100 MH",
-        		"listen": {
-        			"port": 3338
-        		},
-        		"connect": {
-        			"host": "scrypt.ltcrabbit.com",
-        			"port": 3338
-        		}
-        	},
-        	{
-        		"comment": "16 fixed difficulty, cpuminer/behind firewall",
-        		"listen": {
-        			"port": 3380
-        		},
-        		"connect": {
-        			"host": "lowdiff.ltcrabbit.com",
-        			"port": 80
-        		}
-        	},
-        	{
-        		"listen": {
-        			"port": 3340
-        		},
-        		"connect": {
-        			"host": "ltc.ghash.io",
-        			"port": 3333
-        		}
-        	},        	
-        	{
-        		"listen": {
-        			"port": 4444
-        		},
-        		"connect": {
-        			"host": "drkpool.com",
-        			"port": 3333
-        		}
-        	},
-        	{
-        		"listen": {
-        			"port": 4445
-        		},
-        		"connect": {
-        			"host": "x11.ltcrabbit.com",
-        			"port": 3332
-        		}
-        	},
-        	{
-        		"comment": "Scrypt pool.minebitshares.com (allowing for a range of 256 to 4096)"
-        		"listen": {
-        			"port": 4450
-        		},
-        		"connect": {
-        			"host": "btsx.minebitshares.com",
-        			"port": 4444
-        		}
-        	},
-        	{
-        	    "comment": "Scrypt pool.minebitshares.com (High diff allows a range of 4096 to 32768)"
-        		"listen": {
-        			"port": 4451
-        		},
-        		"connect": {
-        			"host": "btsx.minebitshares.com",
-        			"port": 4445
-        		}
-        	},
-        	{
-        		"comment": "X11 pool.minebitshares.com"
-        		"listen": {
-        			"port": 4460
-        		},
-        		"connect": {
-        			"host": "btsx.minebitshares.com",
-        			"port": 5555
-        		}
-        	}
-        ]
+        "proxy": [{
+            "comment": "128-8192 variable difficulty, recommended for hashrate < 15 MH",
+            "listen": {
+                "port": 3333
+            },
+            "connect": {
+                "host": "scrypt.ltcrabbit.com",
+                "port": 3333
+            }
+        }, {
+            "comment": "1028 fixed difficulty, ASICs, > 15 MH",
+            "listen": {
+                "port": 3335
+            },
+            "connect": {
+                "host": "scrypt.ltcrabbit.com",
+                "port": 3335
+            }
+        }, {
+            "comment": "2048 fixed difficulty, ASICs, > 30 MH",
+            "listen": {
+                "port": 3336
+            },
+            "connect": {
+                "host": "scrypt.ltcrabbit.com",
+                "port": 3336
+            }
+        }, {
+            "comment": "4096 fixed difficulty, ASICs, > 50 MH",
+            "listen": {
+                "port": 3337
+            },
+            "connect": {
+                "host": "scrypt.ltcrabbit.com",
+                "port": 3337
+            }
+        }, {
+            "comment": "8192 fixed difficulty, ASICs, > 100 MH",
+            "listen": {
+                "port": 3338
+            },
+            "connect": {
+                "host": "scrypt.ltcrabbit.com",
+                "port": 3338
+            }
+        }, {
+            "comment": "16 fixed difficulty, cpuminer/behind firewall",
+            "listen": {
+                "port": 3380
+            },
+            "connect": {
+                "host": "lowdiff.ltcrabbit.com",
+                "port": 80
+            }
+        }, {
+            "listen": {
+                "port": 3340
+            },
+            "connect": {
+                "host": "ltc.ghash.io",
+                "port": 3333
+            }
+        }, {
+            "listen": {
+                "port": 4444
+            },
+            "connect": {
+                "host": "drkpool.com",
+                "port": 3333
+            }
+        }, {
+            "listen": {
+                "port": 4445
+            },
+            "connect": {
+                "host": "x11.ltcrabbit.com",
+                "port": 3332
+            }
+        }, {
+            "comment": "Scrypt pool.minebitshares.com (allowing for a range of 256 to 4096)",
+            "listen": {
+                "port": 4450
+            },
+            "connect": {
+                "host": "btsx.minebitshares.com",
+                "port": 4444
+            }
+        }, {
+            "comment": "Scrypt pool.minebitshares.com (High diff allows a range of 4096 to 32768)",
+            "listen": {
+                "port": 4451
+            },
+            "connect": {
+                "host": "btsx.minebitshares.com",
+                "port": 4445
+            }
+        }, {
+            "comment": "X11 pool.minebitshares.com",
+            "listen": {
+                "port": 4460
+            },
+            "connect": {
+                "host": "btsx.minebitshares.com",
+                "port": 5555
+            }
+        }]
     },
-    "development": {
-    },
-    "test": {
-    },
-    "staging": {
-    },
+    "development": {},
+    "test": {},
+    "staging": {},
     "production": {
         "debug": false
     }
