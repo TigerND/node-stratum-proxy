@@ -72,7 +72,7 @@
                 "port": 4444
             },
             "connect": {
-                "host": "x11.ghash.io",
+                "host": "drk.ghash.io",
                 "port": 3333
             }
         }, {
