@@ -282,7 +282,10 @@ async.eachSeries(config.app.proxy, function(proxy, callback) {
         })
     })
     server.listen(proxy.listen.port, function() {
-        console.log('Proxy server started at port ' + proxy.listen.port + ' for ' + proxy.connect.host + ':' + proxy.connect.port)
+        if (proxy.comment) {
+            var comment = '(' + proxy.comment + ')'
+        }
+        console.log('Proxy server started at port ' + proxy.listen.port + ' for ' + proxy.connect.host + ':' + proxy.connect.port, comment || '')
         callback()
     })
 }, function(err){
